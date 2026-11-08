@@ -1,0 +1,15 @@
+{
+  "name": "wayzoo-skill",
+  "version": "0.2.0",
+  "description": "Write Roblox in TypeScript, compile to Luau, burn far fewer AI tokens.",
+  "license": "MIT",
+  "private": true,
+  "engines": { "node": ">=18" },
+  "bin": { "wayzoo": "skills/wayzoo/scripts/wayzoo.mjs" },
+  "scripts": {
+    "pack": "node tools/pack.mjs",
+    "install-skill": "node install.mjs",
+    "test": "node tools/test.mjs",
+    "benchmark": "node benchmarks/measure.mjs"
+  }
+}

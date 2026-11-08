@@ -1,0 +1,46 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  node:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [20]
+        include:
+          - os: ubuntu-latest
+            node: 18
+          - os: windows-latest
+            node: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Smoke tests (syntax, pack, installer, dist up to date)
+        run: node tools/test.mjs
+      - name: Environment check
+        run: node skills/wayzoo/scripts/wayzoo.mjs doctor
+      - name: Set up and build the example
+        run: |
+          node skills/wayzoo/scripts/wayzoo.mjs setup examples/hello-game
+          node skills/wayzoo/scripts/wayzoo.mjs build examples/hello-game
+          node skills/wayzoo/scripts/wayzoo.mjs deps examples/hello-game
+      - name: Benchmark
+        run: node benchmarks/measure.mjs
+
+  wrappers:
+    name: shell wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n skills/wayzoo/scripts/*.sh benchmarks/measure.sh
+      - name: ShellCheck
+        run: shellcheck skills/wayzoo/scripts/*.sh benchmarks/measure.sh || true
